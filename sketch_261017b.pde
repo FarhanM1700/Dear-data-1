@@ -1,49 +1,90 @@
 Table myData; // Variable to hold the CSV data
 
 void setup() {
-  size(800, 600); // Set your window size
-  background(255); // White background
+  size(1000, 800); // I made the window a bit wider and taller to fit the new text and more rows
+  background(255); 
 
-  // Load the CSV file from the data folder
-  // The header() function tells Processing the first row contains column names
+  // Load the CSV file
   myData = loadTable("distraction_data.csv", "header"); 
 
   // Check if the file loaded successfully
   if (myData == null) {
-    println("ERROR: Could not load the CSV file. Check the file name and location.");
+    println("ERROR: Could not load the CSV file.");
     return;
   }
 
-  // --- Example of how to read and display the data ---
+  println("CSV Loaded! Total rows: " + myData.getRowCount());
   
-  println("Total rows in CSV: " + myData.getRowCount());
-  println("Total columns in CSV: " + myData.getColumnCount());
-
-  // Let's assume your CSV has a column named "Value" (change this to match your actual column name)
-  // If you don't know the column names, you can use myData.getColumnTitle(0) for the first column.
-  
-  fill(0); // Text color black
-  textSize(16);
-  textAlign(LEFT, TOP);
-  text("CSV Data Loaded Successfully!", 20, 20);
-
-  // Loop through the rows and print them to the screen
-  for (int i = 0; i < myData.getRowCount(); i++) {
-    // Get the data from the first column (index 0)
-    // Change 0 to 1 for the second column, etc.
-    String col1Data = myData.getString(i, 0); 
-    
-    // Get the data from the second column (index 1) - assuming it's a number
-    // If it's text, use getString instead of getFloat
-    float col2Data = myData.getFloat(i, 1); 
-
-    // Display the text on the screen
-    // i * 30 spaces the text out vertically
-    text("Row " + i + ": Col 1 = " + col1Data + " | Col 2 = " + col2Data, 20, 60 + (i * 30));
-  }
+  // Call our custom method to get the total time
+  int totalMins = calculateTotalTime(myData);
+  println("Total distraction time: " + totalMins + " minutes");
 }
 
 void draw() {
-  // We don't need draw() for this simple display, 
-  // but it's here if you want to animate things later.
+  background(255); // Clear screen every frame
+  
+  fill(0);
+  textSize(18);
+  textAlign(LEFT, TOP);
+  text("Total Distraction Time: " + calculateTotalTime(myData) + " mins", 20, 20);
+  
+  // Start drawing our data further down the screen
+  int startY = 80; 
+
+  // Loop through the rows to draw the data
+  for (int i = 0; i < myData.getRowCount(); i++) {
+    
+    // --- UPDATED INDEXES DUE TO NEW DATE COLUMN ---
+    String date = myData.getString(i, 0);      // NEW: Date is now index 0
+    String time = myData.getString(i, 1);      // Shifted from 0 to 1
+    String app = myData.getString(i, 2);       // Shifted from 1 to 2
+    int duration = myData.getInt(i, 3);        // Shifted from 2 to 3
+    String trigger = myData.getString(i, 4);   // Shifted from 3 to 4
+
+    // 2. Determine Color based on Trigger (Creative choice!)
+    color circleColor;
+    if (trigger.equals("Notification")) {
+      circleColor = color(0, 150, 255); // Blue
+    } else if (trigger.equals("Boredom")) {
+      circleColor = color(255, 100, 0); // Orange
+    } else if (trigger.equals("Habit")) {
+      circleColor = color(200, 0, 200); // Purple
+    } else {
+      circleColor = color(100); // Grey for anything else (like "Purpose")
+    }
+    
+    // 3. Draw the visualization
+    fill(circleColor);
+    noStroke();
+    
+    // X position is fixed for now, Y position moves down per row
+    float xPos = 150; 
+    // I changed the spacing from 50 to 45 so more rows fit on the screen
+    float yPos = startY + (i * 45); 
+    
+    // Circle size is based on duration (multiplied by 5 to make it visible)
+    float circleSize = duration * 5; 
+    
+    ellipse(xPos, yPos, circleSize, circleSize);
+    
+    // 4. Add text labels next to the circles
+    fill(0);
+    textSize(14); // Made text slightly smaller to fit
+    textAlign(LEFT, CENTER);
+    // Added the date to the text string
+    text(date + " | " + time + " | " + app + " (" + duration + "m) - " + trigger, xPos + 40, yPos);
+  }
+}
+
+// --- CUSTOM METHOD ---
+// fulfilling the rubric requirement: "write a short method that returns a value"
+int calculateTotalTime(Table data) {
+  int total = 0;
+  
+  // Loop through all rows and add up the duration (column index is now 3)
+  for (int i = 0; i < data.getRowCount(); i++) {
+    total += data.getInt(i, 3); // Changed from 2 to 3
+  }
+  
+  return total;
 }
