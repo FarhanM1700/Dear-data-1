@@ -1,7 +1,9 @@
+
 Table myData; // Variable to hold the CSV data
 
 void setup() {
-  size(1000, 800); // I made the window a bit wider and taller to fit the new text and more rows
+  //   fit 25 rows 
+  size(1000, 1200); 
   background(255); 
 
   // Load the CSV file
@@ -34,14 +36,13 @@ void draw() {
   // Loop through the rows to draw the data
   for (int i = 0; i < myData.getRowCount(); i++) {
     
-    // --- UPDATED INDEXES DUE TO NEW DATE COLUMN ---
-    String date = myData.getString(i, 0);      // NEW: Date is now index 0
-    String time = myData.getString(i, 1);      // Shifted from 0 to 1
-    String app = myData.getString(i, 2);       // Shifted from 1 to 2
-    int duration = myData.getInt(i, 3);        // Shifted from 2 to 3
-    String trigger = myData.getString(i, 4);   // Shifted from 3 to 4
+    String date = myData.getString(i, 0);      
+    String time = myData.getString(i, 1);      
+    String app = myData.getString(i, 2);       
+    int duration = myData.getInt(i, 3);        
+    String trigger = myData.getString(i, 4);   
 
-    // 2. Determine Color based on Trigger (Creative choice!)
+    // Determine Color based on Trigger
     color circleColor;
     if (trigger.equals("Notification")) {
       circleColor = color(0, 150, 255); // Blue
@@ -53,38 +54,34 @@ void draw() {
       circleColor = color(100); // Grey for anything else (like "Purpose")
     }
     
-    // 3. Draw the visualization
+    // Draw the visualization
     fill(circleColor);
     noStroke();
     
-    // X position is fixed for now, Y position moves down per row
     float xPos = 150; 
-    // I changed the spacing from 50 to 45 so more rows fit on the screen
-    float yPos = startY + (i * 45); 
     
-    // Circle size is based on duration (multiplied by 5 to make it visible)
+    float yPos = startY + (i * 40); 
+    
+    
     float circleSize = duration * 5; 
     
     ellipse(xPos, yPos, circleSize, circleSize);
     
-    // 4. Add text labels next to the circles
+    // Add text labels next to the circles
     fill(0);
-    textSize(14); // Made text slightly smaller to fit
+    textSize(14); 
     textAlign(LEFT, CENTER);
-    // Added the date to the text string
     text(date + " | " + time + " | " + app + " (" + duration + "m) - " + trigger, xPos + 40, yPos);
   }
 }
 
-// --- CUSTOM METHOD ---
-// fulfilling the rubric requirement: "write a short method that returns a value"
+// --- Custom method which returns value ---
 int calculateTotalTime(Table data) {
-  int total = 0;
+  int total = 0; // init total
   
-  // Loop through all rows and add up the duration (column index is now 3)
-  for (int i = 0; i < data.getRowCount(); i++) {
-    total += data.getInt(i, 3); // Changed from 2 to 3
+  for (int i = 0; i < data.getRowCount(); i++) { // for loop
+    total += data.getInt(i, 3);  // takes index (i) and column index(3) and increments each time
   }
   
-  return total;
+  return total; // returns total
 }
